@@ -5,9 +5,13 @@ import Image from "next/image";
 import AuthForm from "@/ui/auth/authForm";
 import Link from "next/link";
 
-const LoginPage: React.FC = () => {
-  const handleLoginSubmit = (data: { email: string; password: string }) => {
-    console.log("Login data:", data);
+const RegisterPage: React.FC = () => {
+  const handleRegisterSubmit = (data: {
+    name?: string;
+    email: string;
+    password: string;
+  }) => {
+    console.log("Register data:", data);
   };
 
   return (
@@ -23,20 +27,20 @@ const LoginPage: React.FC = () => {
               height={40}
             />
             <h2 className="mt-8 text-2xl font-bold leading-9 tracking-tight text-gray-900">
-              Sign in to your account
+              Create an account
             </h2>
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Not a member?{" "}
+              Already have account?{" "}
               <Link
-                href="/register"
+                href="/login"
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
-                Sign up now
+                Sign in
               </Link>
             </p>
           </div>
           <div className="mt-10">
-            <AuthForm type="login" onSubmit={handleLoginSubmit} />
+            <AuthForm type="register" onSubmit={handleRegisterSubmit} />
           </div>
         </div>
       </div>
@@ -52,4 +56,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
