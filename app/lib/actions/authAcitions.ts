@@ -1,6 +1,6 @@
 "use server";
-import { getSession, signIn, signOut } from "next-auth/react";
 
+import { getSession, signIn, signOut } from "next-auth/react";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema } from "@/lib/schemas/loginSchema";
 import {
@@ -11,11 +11,21 @@ import {
 
 import { TokenType, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import AuthError from "next-auth";
 import { ActionResult } from "@/types";
 import { sendPasswordResetEmail, sendVerificationEmail } from "../mail";
 import { generateToken, getTokenByToken } from "../tokens";
 
+// Helper function to fetch a user by email
+export async function getUserByEmail(email: string): Promise<User | null> {
+  return prisma.user.findUnique({ where: { email } });
+}
+
+// Helper function to fetch a user by ID
+export async function getUserById(id: string): Promise<User | null> {
+  return prisma.user.findUnique({ where: { id } });
+}
+
+// Sign In User
 export async function signInUser(
   data: LoginSchema
 ): Promise<ActionResult<string>> {
@@ -39,36 +49,35 @@ export async function signInUser(
       };
     }
 
-    await signIn("credentials", {
+    const signInResult = await signIn("credentials", {
       email: data.email,
       password: data.password,
       redirect: false,
     });
 
+    if (signInResult?.error) {
+      return { status: "error", error: "Invalid credentials" };
+    }
+
     return { status: "success", data: "Logged in" };
   } catch (error) {
     console.log(error);
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { status: "error", error: "Invalid credentials" };
-        default:
-          return { status: "error", error: "Something went wrong" };
-      }
-    } else {
-      return { status: "error", error: "Something else went wrong" };
-    }
+    return {
+      status: "error",
+      error: error instanceof Error ? error.message : "Something went wrong",
+    };
   }
 }
 
+// Sign Out User
 export async function signOutUser() {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirect: true });
 }
 
+// Register User
 export async function registerUser(
   data: RegisterSchema
 ): Promise<ActionResult<User>> {
-  console.log("register data", data);
   try {
     const validated = combinedRegisterSchema.safeParse(data);
 
@@ -130,6 +139,7 @@ export async function registerUser(
   }
 }
 
+// Verify Email
 export async function verifyEmail(
   token: string
 ): Promise<ActionResult<string>> {
@@ -166,6 +176,7 @@ export async function verifyEmail(
   }
 }
 
+// Generate Reset Password Email
 export async function generateResetPasswordEmail(
   email: string
 ): Promise<ActionResult<string>> {
@@ -182,7 +193,7 @@ export async function generateResetPasswordEmail(
 
     return {
       status: "success",
-      data: "Password reset email has been sent.  Please check your emails",
+      data: "Password reset email has been sent. Please check your emails",
     };
   } catch (error) {
     console.log(error);
@@ -190,23 +201,7 @@ export async function generateResetPasswordEmail(
   }
 }
 
-export async function getUserByEmail(email: string) {
-  return prisma.user.findUnique({ where: { email } });
-}
-
-export async function getUserById(id: string) {
-  return prisma.user.findUnique({ where: { id } });
-}
-
-export async function getAuthUserId() {
-  const session = await getSession();
-  const userId = session?.user;
-
-  if (!userId) throw new Error("Unauthorized");
-
-  return userId;
-}
-
+// Reset Password
 export async function resetPassword(
   password: string,
   token: string | null
@@ -245,7 +240,7 @@ export async function resetPassword(
 
     return {
       status: "success",
-      data: "Password updated successfully.  Please try logging in",
+      data: "Password updated successfully. Please try logging in",
     };
   } catch (error) {
     console.log(error);
@@ -253,6 +248,7 @@ export async function resetPassword(
   }
 }
 
+// Complete Social Login Profile
 export async function completeSocialLoginProfile(
   data: ProfileSchema
 ): Promise<ActionResult<string>> {
@@ -291,14 +287,4 @@ export async function completeSocialLoginProfile(
     console.log(error);
     throw error;
   }
-}
-
-export async function getUserRole() {
-  const session = await getSession();
-
-  const role = session?.user.role;
-
-  if (!role) throw new Error("Not in role");
-
-  return role;
 }
