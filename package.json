@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test-connection": "ts-node app/api/testConnection/route.ts",
     "dev:web": "next dev"
   },
   "dependencies": {
