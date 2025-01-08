@@ -1,30 +1,24 @@
-"use client";
-
-import { NavbarItem } from "@nextui-org/react";
+'use client'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import { NavbarItem } from "@nextui-org/react";
 
-// Link Types
 type NavLink = {
   href: string;
   label: string;
 };
 
 const memberLinks: NavLink[] = [
-  { href: "/matches", label: "matches" },
+  { href: "/matches", label: "Matches" },
   { href: "/discover", label: "Discover" },
   { href: "/chat", label: "Chat" },
 ];
 
 const adminLinks: NavLink[] = [{ href: "/admin/profile", label: "Profile" }];
 
-// NavLinks Component
 export default function NavLinks() {
   const pathname = usePathname();
   const links = [...memberLinks, ...adminLinks];
-
-  console.log(links);
 
   return (
     <>
@@ -34,9 +28,11 @@ export default function NavLinks() {
           isActive={pathname === href}
           as={Link}
           href={href}
-          className="hover:text-yellow-30"
+          className={`text-white hover:text-yellow-200 transition-colors duration-100 py-2 px-4 ${
+            pathname === href ? "text-yellow-400" : ""
+          }`}
         >
-          <span className="text-white-300">{label}</span>
+          <span className="font-bold">{label.toUpperCase()}</span>
         </NavbarItem>
       ))}
     </>
