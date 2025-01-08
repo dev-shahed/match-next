@@ -1,7 +1,6 @@
 import { differenceInYears, format, formatDistance } from 'date-fns';
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form';
 import { ZodIssue } from 'zod';
-import { prisma } from './prisma';
 
 export function calculateAge(dob: Date) {
     return differenceInYears(new Date(), dob);
