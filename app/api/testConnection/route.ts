@@ -7,12 +7,12 @@ export async function GET() {
     await prisma.$connect();
     console.log('Database connection successful!');
     return NextResponse.json({ message: 'Database connection successful!' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error connecting to the database:', error);
 
     // Ensure error message is safely retrieved
     const errorMessage =
-      error?.message || 'An unknown error occurred while connecting to the database';
+      (error as Error)?.message || 'An unknown error occurred while connecting to the database';
 
     return NextResponse.json(
       { message: 'Failed to connect to the database', error: errorMessage },
