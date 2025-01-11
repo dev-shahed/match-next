@@ -1,5 +1,8 @@
 "use server";
-import { auth, signIn, signOut } from "../../../auth";
+
+import bcrypt from "bcryptjs";
+import AuthError from "next-auth";
+import { auth, signIn, signOut } from "../../auth";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema } from "@/lib/schemas/loginSchema";
 import {
@@ -7,23 +10,36 @@ import {
   ProfileSchema,
   RegisterSchema,
 } from "@/lib/schemas/registerSchema";
-
+import { generateToken, getTokenByToken } from "../tokens";
 import { TokenType, User } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import AuthError from "next-auth";
 import { ActionResult } from "@/types";
 import { sendPasswordResetEmail, sendVerificationEmail } from "../mail";
-import { generateToken, getTokenByToken } from "../tokens";
+
+async function signInWithCredentials(data: LoginSchema) {
+  // Attempt sign-in using credentials provide
+  try {
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export async function signInUser(
   data: LoginSchema
 ): Promise<ActionResult<string>> {
   try {
+    // Fetch user by email
     const existingUser = await getUserByEmail(data.email);
 
-    if (!existingUser || !existingUser.email)
+    if (!existingUser || !existingUser.email) {
       return { status: "error", error: "Invalid credentials" };
+    }
 
+    // Check if the email is verified
     if (!existingUser.emailVerified) {
       const { token, email } = await generateToken(
         existingUser.email,
@@ -37,25 +53,20 @@ export async function signInUser(
         error: "Please verify your email before logging in",
       };
     }
-
-    await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
-
-    return { status: "success", data: "Logged in" };
+    signInWithCredentials(data);
+    return { status: "success", data: "Logged in successfully" };
   } catch (error) {
     if (error instanceof AuthError) {
-      switch (error) {
+      switch (error as string) {
         case "CredentialsSignin":
           return { status: "error", error: "Invalid credentials" };
+        case "CredentialsSignin":
+          throw error;
         default:
-          return { status: "error", error: "Something went wrong" };
+          return { status: "error", error: "Authentication error occurred" };
       }
-    } else {
-      return { status: "error", error: "Something else went wrong" };
     }
+    return { status: "error", error: "An unexpected error occurred" };
   }
 }
 
@@ -66,7 +77,6 @@ export async function signOutUser() {
 export async function registerUser(
   data: RegisterSchema
 ): Promise<ActionResult<User>> {
-  console.log("register data", data);
   try {
     const validated = combinedRegisterSchema.safeParse(data);
 

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/ui/navbar/topnav";
-import { Providers } from "@/providers";
+import Providers from "./providers";
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
   description: "A simple app to match your next.js project with NestJS",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -29,8 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TopNav />
-        <Providers>{children}</Providers>
+        <Providers>
+          <TopNav />
+          <main className="container mx-auto">{children}</main>
+        </Providers>
       </body>
     </html>
   );

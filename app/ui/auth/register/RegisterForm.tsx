@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/react";
 import UserDetails from "./UserDetails";
 import ProfileDetails from "./ProfileDetails";
-import { registerUser } from "@/lib/actions/authAcitions";
+import { registerUser } from "@/lib/actions/authActions";
 import { handleFormServerErrors } from "@/lib/util";
 
 const stepSchemas = [registerSchema, profileSchema];

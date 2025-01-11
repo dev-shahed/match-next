@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { signInUser } from "@/lib/actions/authAcitions";
+import { signInUser } from "@/lib/actions/authActions";
 import { LoginSchema, loginSchema } from "@/lib/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input } from "@nextui-org/react";
@@ -24,8 +24,10 @@ export default function LoginForm() {
   const router = useRouter();
 
   const onSubmit = async (data: LoginSchema) => {
-    const result = await signInUser(data);
-    console.log(result)
+    const result = await signInUser({
+      email: data.email,
+      password: data.password,
+    });
     if (result.status === "success") {
       router.push("/discover");
       router.refresh();

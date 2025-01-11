@@ -1,3 +1,5 @@
+'use client'
+
 import { differenceInYears, format, formatDistance } from 'date-fns';
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form';
 import { ZodIssue } from 'zod';

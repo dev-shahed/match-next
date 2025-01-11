@@ -1,9 +1,7 @@
-// tailwind.config.js
 import { nextui } from "@nextui-org/react";
 
 /** @type {import('tailwindcss').Config} */
 const config = {
-  // I am using app root as the content root
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -14,7 +12,7 @@ const config = {
     extend: {},
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [nextui()], // Adds NextUI plugin
 };
 
 export default config;
